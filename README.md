@@ -31,15 +31,17 @@ flowchart TD
     end
 
     subgraph Fast Data & Caching Tier
-        App1 & App2 & App3 -->|1. Cache Lookup < 1ms| RedisCache[(Redis 7 Cache)]
+        App1 & App2 & App3 -->|1. Cache Lookup &lt; 1ms| RedisCache[(Redis 7 Cache)]
         App1 & App2 & App3 -->|2. Fallback on Cache Miss| Postgres[(PostgreSQL 16 DB)]
     end
 
     subgraph Asynchronous Click Analytics Pipeline
         App1 & App2 & App3 -.->|3. Emit Event Payload| RedisQueue[(Redis Click Queue)]
-        Worker[Analytics Background Worker] -->|4. Pop Batch (e.g. 50 items)| RedisQueue
+        RedisQueue -->|4. Pop Batch e.g. 50 items| Worker[Analytics Background Worker]
         Worker -->|5. Single Bulk Insert Transaction| Postgres
     end
+
+
 ```
 
 ---
