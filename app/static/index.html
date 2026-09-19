@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Distributed URL Shortener</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1>Distributed URL Shortener</h1>
+      <p class="subtitle">FastAPI &bull; Redis Caching &bull; PostgreSQL &bull; Nginx</p>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('shorten-tab')">Shorten URL</button>
+      <button class="tab-btn" onclick="switchTab('analytics-tab')">Click Analytics</button>
+    </div>
+
+    <!-- Section 1: Shorten URL -->
+    <div id="shorten-tab" class="tab-content active">
+      <div class="card">
+        <h2>Create Short Link</h2>
+        <form id="shorten-form">
+          <div class="form-group">
+            <label for="long-url">Long Destination URL *</label>
+            <input
+              type="url"
+              id="long-url"
+              placeholder="https://example.com/very/long/path/to/something"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="custom-alias">Custom Alias (Optional)</label>
+              <input
+                type="text"
+                id="custom-alias"
+                placeholder="e.g. my-promo-link"
+                pattern="[a-zA-Z0-9_-]{3,30}"
+                title="3-30 letters, numbers, dashes, underscores"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="expires-in">Expires In (Optional)</label>
+              <select id="expires-in">
+                <option value="">Never (Permanent)</option>
+                <option value="1">1 Day</option>
+                <option value="7">7 Days</option>
+                <option value="30">30 Days</option>
+                <option value="90">90 Days</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" id="shorten-btn" class="btn btn-primary">
+            Shorten URL
+          </button>
+        </form>
+
+        <div id="shorten-result" class="result-box hidden">
+          <h3>Your Shortened Link</h3>
+          <div class="url-display-row">
+            <input type="text" id="short-url-output" readonly />
+            <button class="btn btn-secondary" onclick="copyShortUrl()">Copy</button>
+            <a id="test-redirect-link" href="#" target="_blank" class="btn btn-success">Visit Link &rarr;</a>
+          </div>
+          <p class="meta-text" id="shorten-meta"></p>
+        </div>
+
+        <div id="shorten-error" class="error-box hidden"></div>
+      </div>
+    </div>
+
+    <!-- Section 2: Analytics -->
+    <div id="analytics-tab" class="tab-content">
+      <div class="card">
+        <h2>URL Performance Analytics</h2>
+        <p class="description">Look up real-time redirect metrics and traffic data.</p>
+        <form id="analytics-form">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <input
+                type="text"
+                id="analytics-code"
+                placeholder="Enter short code or alias (e.g. my-promo-link)"
+                required
+              />
+            </div>
+            <button type="submit" class="btn btn-primary">View Analytics</button>
+          </div>
+        </form>
+
+        <div id="analytics-error" class="error-box hidden"></div>
+
+        <div id="analytics-result" class="analytics-dashboard hidden">
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-label">Total Clicks</span>
+              <span class="metric-value" id="stat-total-clicks">0</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Clicks (Last 24h)</span>
+              <span class="metric-value" id="stat-clicks-24h">0</span>
+            </div>
+          </div>
+
+          <div class="breakdown-grid">
+            <div class="breakdown-card">
+              <h4>Top Referrers</h4>
+              <ul id="list-referrers" class="breakdown-list"></ul>
+            </div>
+            <div class="breakdown-card">
+              <h4>Top Browsers</h4>
+              <ul id="list-browsers" class="breakdown-list"></ul>
+            </div>
+            <div class="breakdown-card">
+              <h4>Top Platforms / OS</h4>
+              <ul id="list-os" class="breakdown-list"></ul>
+            </div>
+          </div>
+
+          <div class="recent-clicks-card">
+            <h4>Recent Click Logs</h4>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Time (UTC)</th>
+                    <th>IP Address</th>
+                    <th>Browser</th>
+                    <th>OS</th>
+                    <th>Referrer</th>
+                  </tr>
+                </thead>
+                <tbody id="table-recent-clicks"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>Distributed URL Shortener System &bull; <a href="/docs" target="_blank">Swagger API Docs</a> &bull; <a href="/health" target="_blank">Health Check</a></p>
+    </footer>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

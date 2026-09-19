@@ -1,0 +1,43 @@
+# Production Docker Compose for AWS EC2 Deployment
+# Connects directly to managed AWS RDS (PostgreSQL) and AWS ElastiCache (Redis)
+
+services:
+  app1:
+    build: .
+    restart: always
+    env_file: .env.prod
+    ports:
+      - "8001:8000"
+
+  app2:
+    build: .
+    restart: always
+    env_file: .env.prod
+    ports:
+      - "8002:8000"
+
+  app3:
+    build: .
+    restart: always
+    env_file: .env.prod
+    ports:
+      - "8003:8000"
+
+  worker:
+    build: .
+    restart: always
+    command: ["python", "-m", "app.workers.analytics_worker"]
+    env_file: .env.prod
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app1
+      - app2
+      - app3
